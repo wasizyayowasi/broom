@@ -81,35 +81,38 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// メインループ(何かキーが押されたらループを抜ける)
 	while (ProcessMessage() == 0)
 	{
-		// 左右キーが押されたらカメラを回転する
-		if (CheckHitKey(KEY_INPUT_LEFT))
+		
+		//ここはいらない　実験用
 		{
-			camera.horizontalRotAngle -= 3;
-			if (camera.horizontalRotAngle < 0)
+			// 左右キーが押されたらカメラを回転する
+			if (CheckHitKey(KEY_INPUT_LEFT))
 			{
-				camera.horizontalRotAngle += 360;
+				camera.horizontalRotAngle -= 3;
+				if (camera.horizontalRotAngle < 0)
+				{
+					camera.horizontalRotAngle += 360;
+				}
+			}
+			if (CheckHitKey(KEY_INPUT_RIGHT))
+			{
+				camera.horizontalRotAngle += 3;
+				if (camera.horizontalRotAngle > 360)
+				{
+					camera.horizontalRotAngle -= 360;
+				}
+			}
+
+			// 上下キーが押されたらガウスフィルタのぼかし度合いを変更する
+			if (CheckHitKey(KEY_INPUT_UP))
+			{
+				GaussRatio++;
+			}
+			if (CheckHitKey(KEY_INPUT_DOWN))
+			{
+				if (GaussRatio > 0)
+					GaussRatio--;
 			}
 		}
-		if (CheckHitKey(KEY_INPUT_RIGHT))
-		{
-			camera.horizontalRotAngle += 3;
-			if (camera.horizontalRotAngle > 360)
-			{
-				camera.horizontalRotAngle -= 360;
-			}
-		}
-
-		// 上下キーが押されたらガウスフィルタのぼかし度合いを変更する
-		if (CheckHitKey(KEY_INPUT_UP))
-		{
-			GaussRatio++;
-		}
-		if (CheckHitKey(KEY_INPUT_DOWN))
-		{
-			if (GaussRatio > 0)
-				GaussRatio--;
-		}
-
 
 		// 通常の描画結果を書き込むスクリーンを描画対象にする
 		SetDrawScreen(ColorScreen);
@@ -149,7 +152,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 
 		// 通常の描画結果を描画する
-		DrawGraph(0, 0, ColorScreen, FALSE);
+		DrawGraph(0, 0, ColorScreen, false);
 
 
 		// 描画モードをバイリニアフィルタリングにする( 拡大したときにドットがぼやけるようにする )
@@ -159,8 +162,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		SetDrawBlendMode(DX_BLENDMODE_ADD, 255);
 
 		// 高輝度部分を縮小してぼかした画像を画面いっぱいに２回描画する( ２回描画するのはより明るくみえるようにするため )
-		DrawExtendGraph(0, 0, screenWidth, screenHeight, GaussScreen, FALSE);
-		DrawExtendGraph(0, 0, screenWidth, screenHeight, GaussScreen, FALSE);
+		DrawExtendGraph(0, 0, screenWidth, screenHeight, GaussScreen, false);
+		DrawExtendGraph(0, 0, screenWidth, screenHeight, GaussScreen, false);
 
 		// 描画ブレンドモードをブレンド無しに戻す
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
@@ -169,16 +172,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		SetDrawMode(DX_DRAWMODE_NEAREST);
 
 
-		// フィルター処理の途中経過が分かるように画面下部に縮小して描画する
-		DrawExtendGraph(180 * 0 + 24, 320, 180 * 0 + 24 + 160, 120 + 320, HighBrightScreen, FALSE);
-		DrawExtendGraph(180 * 1 + 24, 320, 180 * 1 + 24 + 160, 120 + 320, DownScaleScreen, FALSE);
-		DrawExtendGraph(180 * 2 + 24, 320, 180 * 2 + 24 + 160, 120 + 320, GaussScreen, FALSE);
+		//ここは実際に使うときはいらない
+		{
+			// フィルター処理の途中経過が分かるように画面下部に縮小して描画する
+			DrawExtendGraph(180 * 0 + 24, 320, 180 * 0 + 24 + 160, 120 + 320, HighBrightScreen, false);
+			DrawExtendGraph(180 * 1 + 24, 320, 180 * 1 + 24 + 160, 120 + 320, DownScaleScreen, false);
+			DrawExtendGraph(180 * 2 + 24, 320, 180 * 2 + 24 + 160, 120 + 320, GaussScreen, false);
 
-
-		// 現在のガウスフィルタのぼかし度合いを描画する
-		DrawFormatString(0, 0, GetColor(255, 255, 255), "Gauss:%d", GaussRatio);
-		DrawFormatString(0, 16, 0xffffff, "%d", camera.horizontalRotAngle);
-
+			// 現在のガウスフィルタのぼかし度合いを描画する
+			DrawFormatString(0, 0, GetColor(255, 255, 255), "Gauss:%d", GaussRatio);
+			DrawFormatString(0, 16, 0xffffff, "%d", camera.horizontalRotAngle);
+		}
 
 		// 裏画面の内容を表画面に反映
 		ScreenFlip();
